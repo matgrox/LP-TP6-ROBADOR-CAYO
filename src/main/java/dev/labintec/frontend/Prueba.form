@@ -96,6 +96,9 @@
               <Dimension value="[582, 420]"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="componentResized" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="desktopPanelPrincipalComponentResized"/>
+          </Events>
 
           <Layout>
             <DimensionLayout dim="0">
