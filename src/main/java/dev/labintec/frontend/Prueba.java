@@ -44,6 +44,11 @@ public class Prueba extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         desktopPanelPrincipal.setMinimumSize(new java.awt.Dimension(582, 420));
+        desktopPanelPrincipal.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                desktopPanelPrincipalComponentResized(evt);
+            }
+        });
 
         javax.swing.GroupLayout desktopPanelPrincipalLayout = new javax.swing.GroupLayout(desktopPanelPrincipal);
         desktopPanelPrincipal.setLayout(desktopPanelPrincipalLayout);
@@ -134,10 +139,16 @@ public class Prueba extends javax.swing.JFrame {
 
     private void jMenuItemGestionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemGestionActionPerformed
         cerrarFrames();
-        IFrameUsuario nuevo = new IFrameUsuario();
-        nuevo.mostrar();
-        panelPrincipal.add(nuevo);
+        IFrameUsuario ifu = new IFrameUsuario();
+        desktopPanelPrincipal.add(ifu);
+        ifu.mostrar();
     }//GEN-LAST:event_jMenuItemGestionActionPerformed
+
+    private void desktopPanelPrincipalComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_desktopPanelPrincipalComponentResized
+        for (JInternalFrame frame : desktopPanelPrincipal.getAllFrames())
+            frame.setSize(desktopPanelPrincipal.getSize());
+    }//GEN-LAST:event_desktopPanelPrincipalComponentResized
+
     public static void mostrar() {
         new Prueba().setVisible(true);
     }
