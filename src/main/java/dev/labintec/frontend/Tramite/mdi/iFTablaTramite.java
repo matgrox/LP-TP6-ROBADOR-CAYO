@@ -24,21 +24,47 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
 /**
+ * Ventana interna (JInternalFrame) encargada de gestionar trámites en la
+ * interfaz. Permite listar, crear, editar y eliminar transacciones mediante
+ * interacción con el backend HTTP. Incluye validaciones dinámicas,
+ * configuración de filtros de entrada y manejo de estado visual.
+ *
+ * Esta clase forma parte del módulo de frontend y trabaja en conjunto con
+ * `ClienteRequestTransaction` para realizar operaciones sobre el servicio REST
+ * de transacciones.
  *
  * @author matgr
  */
 public class iFTablaTramite extends javax.swing.JInternalFrame {
-    private iFTablaTramite existencia;
-    private boolean soloNumeros = false;
-    private boolean soloLetras = true;
-    private boolean estado = false;
+
     /**
-     * Creates new form iFtablaTramite
+     * Referencia a la propia instancia, utilizada para comunicación entre
+     * componentes.
+     */
+    private iFTablaTramite existencia;
+    /**
+     * Indica si se permiten solo caracteres numéricos en los campos de entrada.
+     */
+    private boolean soloNumeros = false;
+
+    /**
+     * Indica si se permiten solo letras en los campos de entrada.
+     */
+    private boolean soloLetras = true;
+    /**
+     * Bandera que define si el campo actualmente activo es el ID.
+     */
+    private boolean estado = false;
+
+    /**
+     * Constructor por defecto que inicializa componentes visuales, configura
+     * selección única en la tabla y ejecuta el método de inicialización
+     * principal.
      */
     public iFTablaTramite() {
         initComponents();
         tableTramite.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        existencia=this;
+        existencia = this;
         inicio();
     }
 
@@ -383,6 +409,12 @@ public class iFTablaTramite extends javax.swing.JInternalFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    /**
+     * Muestra el frame `iFTablaTramite` en pantalla, ajustando su tamaño y
+     * posición para ocupar todo el contenedor padre. Además, inicializa el
+     * estado de los componentes visuales, activando el filtro por tipo y
+     * aplicando las validaciones correspondientes a los campos de texto.
+     */
     public void mostrar() {
         DefaultTableModel modelo = (DefaultTableModel) tableTramite.getModel();
         this.setVisible(true);
@@ -407,52 +439,103 @@ public class iFTablaTramite extends javax.swing.JInternalFrame {
         estado = true;
         limpiar();
         validacionTextField();
-
     }//GEN-LAST:event_checkBoxIdActionPerformed
-
     private void textFieldCampoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textFieldCampoKeyReleased
         deshabilitarBotonesLista();
     }//GEN-LAST:event_textFieldCampoKeyReleased
-
+    /**
+     * Maneja el evento de clic en el botón "Agregar". Obtiene la ventana
+     * contenedora actual para abrir el diálogo modal `DialgNuevoTramite`,
+     * permitiendo al usuario crear un nuevo trámite. El diálogo se muestra de
+     * forma bloqueante y centrado con respecto a la ventana principal.
+     *
+     * @param evt Evento de acción generado por el clic del usuario.
+     */
     private void buttonAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonAgregarActionPerformed
         Window ventanaPadre = SwingUtilities.getWindowAncestor(this);
-
-    if (ventanaPadre instanceof Frame) {
-        DialgNuevoTramite agregar = new DialgNuevoTramite((Frame) ventanaPadre, true,existencia);
-        agregar.setLocationRelativeTo(ventanaPadre); // opcional: centra el diálogo
-        agregar.setVisible(true);                     // muestra de forma bloqueante
-
-
-        
+        if (ventanaPadre instanceof Frame) {
+            DialgNuevoTramite agregar = new DialgNuevoTramite((Frame) ventanaPadre, true, existencia);
+            agregar.setLocationRelativeTo(ventanaPadre);
+            agregar.setVisible(true);                     // muestra de forma bloqueante
     }//GEN-LAST:event_buttonAgregarActionPerformed
     }
+
+    /**
+     * Maneja el evento de clic en el botón "Listar". Según el checkbox
+     * seleccionado, realiza una consulta al servicio backend:
+     * <ul>
+     * <li>Si está seleccionado el checkbox de estado, consulta las
+     * transacciones por estado.</li>
+     * <li>Si está seleccionado el checkbox de tipo, consulta las transacciones
+     * por tipo.</li>
+     * <li>Si está seleccionado el checkbox de ID, consulta una única
+     * transacción por ID.</li>
+     * </ul>
+     * Cada respuesta se procesa y se carga en la tabla correspondiente. En caso
+     * de que el servicio no esté disponible, se muestra un mensaje en consola.
+     *
+     * @param evt Evento de acción generado por el clic del usuario.
+     */
     private void buttonListarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonListarActionPerformed
-        this.setSize(400, 140);
         if (checkBoxEstado.isSelected()) {
-            String response = ClienteRequestTransaction.requestTransactionObtenerPorEstado(textFieldCampo.getText());
-            cargarTabla(response);
+            try {
+                String response = ClienteRequestTransaction.requestTransactionObtenerPorEstado(textFieldCampo.getText());
+                cargarTabla(response);
+                if (response != null) {
+                    cargarTabla(response);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "❌ No se pudo conectar al servicio.\nVerifique que esté levantado.", "Error de conexión", JOptionPane.ERROR_MESSAGE);
+            }
         }
         if (checkBoxtTipo.isSelected()) {
-            String response = ClienteRequestTransaction.requestTransactionObtenerPorTipo(textFieldCampo.getText());
-            cargarTabla(response);
+            try {
+                String response = ClienteRequestTransaction.requestTransactionObtenerPorTipo(textFieldCampo.getText());
+                cargarTabla(response);
+                if (response != null) {
+                    cargarTabla(response);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "❌ No se pudo conectar al servicio.\nVerifique que esté levantado.", "Error de conexión", JOptionPane.ERROR_MESSAGE);            }
         }
         if (checkBoxId.isSelected()) {
             int id = Integer.parseInt(textFieldCampo.getText());
-            String response = ClienteRequestTransaction.requestTransactionObtenerPorid(id);
-            cargarUnElemento(response);
-        }
-
+            try {
+                String response = ClienteRequestTransaction.requestTransactionObtenerPorid(id);
+                cargarUnElemento(response);
+                if (response != null) {
+                    cargarUnElemento(response);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "❌ No se pudo conectar al servicio.\nVerifique que esté levantado.", "Error de conexión", JOptionPane.ERROR_MESSAGE);            }
     }//GEN-LAST:event_buttonListarActionPerformed
+    }
 
+    /**
+     * Maneja el evento de clic en el botón "Listar Todos". Realiza una
+     * solicitud al backend para obtener todas las transacciones disponibles y
+     * las carga en la tabla principal de trámites. En caso de error de
+     * conexión, el bloque `catch` evita que la aplicación se detenga, aunque no
+     * muestra retroalimentación al usuario.
+     *
+     * @param evt Evento de acción generado por el clic del usuario.
+     */
     private void buttonListarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonListarTodosActionPerformed
         try {
             String response = ClienteRequestTransaction.requestTransactionObtenerTodas();
             cargarTabla(response);
         } catch (Exception ex) {
-
+                            JOptionPane.showMessageDialog(null, "❌ No se pudo conectar al servicio.\nVerifique que esté levantado.", "Error de conexión", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_buttonListarTodosActionPerformed
-
+    /**
+     * Maneja el evento de clic en el botón "Editar". Prepara y muestra el
+     * diálogo de edición de trámites (`jDialogEdicion`) ajustando sus
+     * parámetros visuales. Inicializa el estado del checkbox y los campos de
+     * texto para editar la transacción seleccionada.
+     *
+     * @param evt Evento de acción generado por el clic del usuario.
+     */
     private void buttonEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonEditarActionPerformed
         soloLetras = true;
         jDialogEdicion.setModal(true);
@@ -460,12 +543,17 @@ public class iFTablaTramite extends javax.swing.JInternalFrame {
         jDialogEdicion.setSize(300, 220);
         jDialogEdicion.setLocationRelativeTo(this);
         jCheckBoxEstado.setSelected(true);
-         actualizarTextfield();
+        actualizarTextfield();
         jDialogEdicion.setVisible(true);
-       
-
     }//GEN-LAST:event_buttonEditarActionPerformed
-    
+    /**
+     * Maneja el evento de clic en el botón "Eliminar". Obtiene el ID de la fila
+     * seleccionada en la tabla y muestra un cuadro de confirmación. Si el
+     * usuario confirma la acción, se solicita la eliminación de la transacción
+     * al backend y se remueve la fila correspondiente de la tabla.
+     *
+     * @param evt Evento de acción generado por el clic del usuario.
+     */
     private void buttonEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonEliminarActionPerformed
         DefaultTableModel modelo = (DefaultTableModel) tableTramite.getModel();
         int selectedRow = tableTramite.getSelectedRow();
@@ -478,7 +566,14 @@ public class iFTablaTramite extends javax.swing.JInternalFrame {
             deshabilitarBotones();
         }
     }//GEN-LAST:event_buttonEliminarActionPerformed
-
+    /**
+     * Maneja el evento de clic en el botón "Guardar" dentro del diálogo de
+     * edición. Determina si se debe actualizar el estado o el tipo de la
+     * transacción seleccionada, envía la solicitud correspondiente al backend,
+     * cierra el diálogo y actualiza la tabla.
+     *
+     * @param evt Evento de acción generado por el clic del usuario.
+     */
     private void buttonGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonGuardarActionPerformed
         int selectedRow = tableTramite.getSelectedRow();
         Object value = tableTramite.getValueAt(selectedRow, 0);
@@ -512,16 +607,36 @@ public class iFTablaTramite extends javax.swing.JInternalFrame {
     private void buttonCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCancelarActionPerformed
         jDialogEdicion.dispose();
     }//GEN-LAST:event_buttonCancelarActionPerformed
-
+    /**
+     * Habilita los botones "Editar" y "Eliminar" al hacer clic sobre una fila
+     * en la tabla de trámites. Este evento permite seleccionar una transacción
+     * para su modificación o eliminación.
+     *
+     * @param evt Evento del mouse generado por la interacción del usuario con
+     * la tabla.
+     */
     private void tableTramiteMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableTramiteMousePressed
         buttonEditar.setEnabled(true);
         buttonEliminar.setEnabled(true);
     }//GEN-LAST:event_tableTramiteMousePressed
+    /**
+     * Actualiza las banderas de validación según el estado de los checkboxes
+     * activos. Define si los campos deben aceptar solo números, solo letras o
+     * cualquier carácter, dependiendo de si está seleccionado ID, tipo o estado
+     * como filtro de búsqueda.
+     */
     private void actualizarFiltro() {
         soloNumeros = checkBoxId.isSelected();
         soloLetras = checkBoxtTipo.isSelected() || checkBoxEstado.isSelected();
     }
 
+    /**
+     * Aplica validación dinámica a los campos de texto utilizados para
+     * búsquedas o edición. El filtro permite restringir la entrada del usuario
+     * a solo números o solo letras, basándose en el criterio seleccionado (ID,
+     * tipo o estado). También se encarga de aplicar el filtro a los componentes
+     * visuales adecuados.
+     */
     private void validacionTextField() {
         DocumentFilter filtro = new DocumentFilter() {
             @Override
@@ -559,12 +674,26 @@ public class iFTablaTramite extends javax.swing.JInternalFrame {
         deshabilitarBotonesLista();
     }
 
+    /**
+     * Limpia el campo de entrada `textFieldCampo` si el modo de búsqueda está
+     * configurado para ID. Esta acción ayuda a mantener la coherencia visual al
+     * cambiar criterios de filtrado.
+     */
     private void limpiar() {
         if (estado) {
             textFieldCampo.setText("");
         }
     }
 
+    /**
+     * Carga múltiples trámites en la tabla principal a partir de un JSON
+     * recibido. Utiliza `ObjectMapper` para deserializar una lista de mapas y
+     * recorre cada uno para extraer los campos relevantes: `codtransaction`,
+     * `tipo` y `estado`. Reemplaza el contenido actual de la tabla con los
+     * nuevos datos.
+     *
+     * @param json Cadena JSON que representa una lista de trámites.
+     */
     private void cargarTabla(String json) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -580,12 +709,19 @@ public class iFTablaTramite extends javax.swing.JInternalFrame {
 
                 modelo.addRow(new Object[]{id, tipo, estado});
             }
-            // UUsa este método si es un objeto único                    
         } catch (JsonProcessingException ex) {
-            Logger.getLogger(iFTablaTramite.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Erro al contruir el jSon");
         }
     }
 
+    /**
+     * Carga un único trámite en la tabla principal a partir de un JSON
+     * recibido. Elimina todas las filas existentes y agrega una sola fila con
+     * los datos extraídos. Utilizado principalmente cuando se realiza una
+     * búsqueda por ID.
+     *
+     * @param json Cadena JSON que representa un único trámite.
+     */
     private void cargarUnElemento(String json) {
         DefaultTableModel modelo = (DefaultTableModel) tableTramite.getModel();
         modelo.setRowCount(0); // Esto sí funciona: elimina todas las filas
@@ -599,15 +735,24 @@ public class iFTablaTramite extends javax.swing.JInternalFrame {
             Object estado = fila.get("estado");
             modelo.addRow(new Object[]{id, tipo, estado});
         } catch (JsonProcessingException ex) {
-            Logger.getLogger(iFTablaTramite.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Eror al interpretar el jSon");
         }
     }
 
+    /**
+     * Deshabilita los botones "Editar" y "Eliminar". Se utiliza para
+     * restablecer el estado visual cuando no hay selección en la tabla.
+     */
     private void deshabilitarBotones() {
         buttonEditar.setEnabled(false);
         buttonEliminar.setEnabled(false);
     }
 
+    /**
+     * Habilita o deshabilita los botones "Listar" y "Listar Todos" según el
+     * contenido del campo de búsqueda `textFieldCampo`. Esto garantiza que la
+     * interfaz responda de forma contextual a la entrada del usuario.
+     */
     private void deshabilitarBotonesLista() {
         if (textFieldCampo.getText().isEmpty()) {
             buttonListarTodos.setEnabled(true);
@@ -621,18 +766,44 @@ public class iFTablaTramite extends javax.swing.JInternalFrame {
         }
     }
 
+    /**
+     * Habilita o deshabilita el botón "Guardar" en función del contenido de los
+     * campos de edición. Si al menos uno de los campos (`textFieldEstado` o
+     * `textFieldTipo`) contiene texto, el botón se habilita. Caso contrario, se
+     * mantiene desactivado.
+     */
     private void deshabilitarBotonGuardar() {
         boolean hayTexto = !textFieldEstado.getText().trim().isEmpty() || !textFieldTipo.getText().trim().isEmpty();
         buttonGuardar.setEnabled(hayTexto);
     }
 
+    /**
+     * Método de inicialización que configura la tabla y carga los trámites
+     * desde el backend. Desactiva el reordenamiento de columnas para mantener
+     * la estructura visual estable. Recupera todas las transacciones
+     * disponibles utilizando el cliente HTTP y las muestra en la tabla
+     * principal. En caso de error, se informa por consola.
+     */
     public void inicio() {
-        
-        String response = ClienteRequestTransaction.requestTransactionObtenerTodas();
-        cargarTabla(response);
-        
+        tableTramite.getTableHeader().setReorderingAllowed(false);
+
+        try {
+            String response = ClienteRequestTransaction.requestTransactionObtenerTodas();
+            if (response != null) {
+                cargarTabla(response);
+            }
+        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(null, "❌ No se pudo conectar al servicio.\nVerifique que esté levantado.", "Error de conexión", JOptionPane.ERROR_MESSAGE);        }
+
     }
 
+    /**
+     * Prepara los campos de edición en función del tipo de modificación
+     * seleccionada. Si se edita el estado, desactiva el campo de tipo y
+     * precarga el estado desde la tabla. Si se edita el tipo, hace lo inverso:
+     * desactiva el campo de estado y precarga el tipo. En ambos casos, el botón
+     * "Guardar" se desactiva para evitar cambios prematuros.
+     */
     private void actualizarTextfield() {
         if (jCheckBoxEstado.isSelected()) {
             textFieldTipo.setEnabled(false);

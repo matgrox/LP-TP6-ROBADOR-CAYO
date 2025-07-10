@@ -4,30 +4,42 @@
  */
 package dev.labintec.frontend.Tramite.mdi;
 
-    import dev.labintec.frontend.Tramite.cliente.ClienteRequestTransaction;
+import dev.labintec.frontend.Tramite.cliente.ClienteRequestTransaction;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 /**
+ * Ventana interna para crear nuevas transacciones. Permite interactuar con el
+ * frame padre para actualizar los datos.
  *
  * @author matgr
  */
+
 public class iFrameNuevaT extends javax.swing.JInternalFrame {
+
     private JDialog contenedor;
     private iFTablaTramite padre;
+
     /**
-     * Creates new form iFrameNuevaT
-     * @param referencia
+     * Constructor de la ventana interna iFrameNuevaT. Recibe una referencia al
+     * contenedor (JDialog) y al frame padre (iFTablaTramite) para poder
+     * interactuar con la interfaz principal desde esta ventana auxiliar.
+     *
+     * @param contenedor El contenedor JDialog que aloja este JInternalFrame.
+     * @param padre Referencia al iFTablaTramite que lo invoca; permite
+     * actualizar datos o comunicarse.
+     * @author matgr
      */
-    public iFrameNuevaT(JDialog contenedor,iFTablaTramite padre) {
-        this.contenedor=contenedor;
-        this.padre=padre;
+    public iFrameNuevaT(JDialog contenedor, iFTablaTramite padre) {
+        this.contenedor = contenedor;
+        this.padre = padre;
         initComponents();
     }
-    public void mostrar(){
+
+    public void mostrar() {
         this.setVisible(true);
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -46,11 +58,6 @@ public class iFrameNuevaT extends javax.swing.JInternalFrame {
 
         jLabelTipo.setText("Tipo: (*)");
 
-        jTextTipo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextTipoActionPerformed(evt);
-            }
-        });
         jTextTipo.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextTipoKeyReleased(evt);
@@ -59,11 +66,6 @@ public class iFrameNuevaT extends javax.swing.JInternalFrame {
 
         jLabelEstatus.setText("Estado: (*)");
 
-        jTextEstatus.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextEstatusActionPerformed(evt);
-            }
-        });
         jTextEstatus.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextEstatusKeyReleased(evt);
@@ -130,39 +132,58 @@ public class iFrameNuevaT extends javax.swing.JInternalFrame {
         habilitar();
     }//GEN-LAST:event_jTextTipoKeyReleased
 
-    private void jTextEstatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextEstatusActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextEstatusActionPerformed
-
     private void jTextEstatusKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextEstatusKeyReleased
         habilitar();
     }//GEN-LAST:event_jTextEstatusKeyReleased
-
+    /**
+     * Maneja el evento de clic en el botón "Agregar". Captura los datos
+     * ingresados en los campos de texto, los empaqueta como JSON y los envía al
+     * backend mediante una solicitud POST para crear un nuevo trámite. Muestra
+     * un mensaje de éxito si la creación fue exitosa, o un mensaje de error si
+     * el servicio está inactivo.
+     *
+     * @param evt El evento de acción generado por el clic en el botón.
+     */
     private void jButtonAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAgregarActionPerformed
         String tipo = jTextTipo.getText();
         String estatus = jTextEstatus.getText();
-        String json = "{ \"tipo\": \""+tipo+"\", \"estado\": \""+estatus+"\" }";
-        String response = ClienteRequestTransaction.requestTransactionPostNuevo(json);
-        JOptionPane.showMessageDialog(rootPane,"Tramite Creado Exitosamente", "Tramite Creado",JOptionPane.INFORMATION_MESSAGE);        
+        String json = "{ \"tipo\": \"" + tipo + "\", \"estado\": \"" + estatus + "\" }";
+        try {
+            String response = ClienteRequestTransaction.requestTransactionPostNuevo(json);
+            if (response != null) {
+                JOptionPane.showMessageDialog(rootPane, "Tramite Creado Exitosamente", "Tramite Creado", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "❌ No se pudo crear el usuario.\nLa base de datos no está activa o no se pudo conectar.", "Error al crear usuario", JOptionPane.ERROR_MESSAGE);
+
+            }
+        } catch (Exception e) {
+                           JOptionPane.showMessageDialog(null, "❌ No se pudo conectar al servicio.\nVerifique que esté levantado.", "Error de conexión", JOptionPane.ERROR_MESSAGE); }
         contenedor.dispose();
         padre.inicio();
     }//GEN-LAST:event_jButtonAgregarActionPerformed
-
-    private void jTextTipoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextTipoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextTipoActionPerformed
-
+    /**
+     * Maneja el evento de clic en el botón "Cancelar". Cierra esta ventana
+     * interna y también el contenedor padre (JDialog).
+     *
+     * @param evt El evento de acción generado por el clic en el botón.
+     */
     private void buttonCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCancelarActionPerformed
         this.dispose();
         contenedor.dispose();
     }//GEN-LAST:event_buttonCancelarActionPerformed
-     private void habilitar(){
+    /**
+     * Habilita o deshabilita el botón "Agregar" según el contenido de los
+     * campos de entrada. Si ambos campos (`estatus` y `tipo`) contienen texto,
+     * se habilita el botón. Si alguno está vacío, se deshabilita para evitar
+     * envíos incompletos.
+     */
+
+    private void habilitar() {
         String username = jTextEstatus.getText();
         String email = jTextTipo.getText();
         if (!username.isEmpty() && !email.isEmpty()) {
             jButtonAgregar.setEnabled(true);
-        }
-        else{
+        } else {
             jButtonAgregar.setEnabled(false);
         }
     }

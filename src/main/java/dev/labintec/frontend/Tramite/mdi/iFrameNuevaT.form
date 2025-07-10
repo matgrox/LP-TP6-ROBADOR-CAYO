@@ -71,7 +71,6 @@
     </Component>
     <Component class="javax.swing.JTextField" name="jTextTipo">
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTextTipoActionPerformed"/>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextTipoKeyReleased"/>
       </Events>
     </Component>
@@ -82,7 +81,6 @@
     </Component>
     <Component class="javax.swing.JTextField" name="jTextEstatus">
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTextEstatusActionPerformed"/>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextEstatusKeyReleased"/>
       </Events>
     </Component>

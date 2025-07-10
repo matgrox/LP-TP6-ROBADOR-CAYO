@@ -3,17 +3,22 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
  */
 package dev.labintec.frontend.Tramite.mdi;
-
 /**
+ * Diálogo modal para la creación de nuevos trámites.
+ * Este JDialog actúa como contenedor principal de un JInternalFrame específico para ingresar datos,
+ * y mantiene una referencia al frame padre que gestiona la tabla de trámites.
  *
  * @author matgr
  */
 public class DialgNuevoTramite extends javax.swing.JDialog {
     private iFTablaTramite padre; 
-    /**
-     * Creates new form DialgoNuevoTramite
-     * @param parent
-     * @param modal
+        /**
+     * Constructor del diálogo modal para ingresar nuevos trámites.
+     * Inicializa los componentes de la interfaz y abre el frame interno de ingreso de datos.
+     *
+     * @param parent Ventana principal que actúa como owner del JDialog.
+     * @param modal Bandera para establecer si el diálogo debe bloquear otras ventanas mientras está activo.
+     * @param padre Referencia al frame padre (iFTablaTramite) para poder actualizar la tabla luego de ingresar datos.
      */
     public DialgNuevoTramite(java.awt.Frame parent, boolean modal,iFTablaTramite padre) {
         super(parent, modal);
@@ -65,7 +70,8 @@ public class DialgNuevoTramite extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     /**
-     * @param args the command line arguments
+     * Inicializa y muestra el frame interno (iFrameNuevaT) dentro del JDialog.
+     * Este frame contiene el formulario de ingreso del nuevo trámite.
      */
     private void inicio(){
         iFrameNuevaT ifn = new iFrameNuevaT(this,padre);
