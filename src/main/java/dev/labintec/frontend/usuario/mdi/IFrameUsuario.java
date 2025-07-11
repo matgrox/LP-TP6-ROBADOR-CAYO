@@ -25,9 +25,6 @@ public class IFrameUsuario extends javax.swing.JInternalFrame {
         jTableUsuarios.setRowSelectionAllowed(true); // Permite seleccionar filas completas
         jTableUsuarios.setColumnSelectionAllowed(false); // Evita seleccionar columnas individualmente
         jTableUsuarios.getTableHeader().setReorderingAllowed(false); // Impide reordenar las columnas manualmente desde el encabezado
-        jTableUsuarios.getColumnModel().getColumn(0).setPreferredWidth(50); // ID
-        jTableUsuarios.getColumnModel().getColumn(1).setPreferredWidth(300); // Username
-        jTableUsuarios.getColumnModel().getColumn(2).setPreferredWidth(300); // Email
     }
 
     /**
@@ -70,11 +67,19 @@ public class IFrameUsuario extends javax.swing.JInternalFrame {
             Class[] types = new Class [] {
                 java.lang.Long.class, java.lang.String.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
         });
+        jTableUsuarios.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jTableUsuarios.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jTableUsuariosMouseClicked(evt);
@@ -349,7 +354,12 @@ public class IFrameUsuario extends javax.swing.JInternalFrame {
                 // 4. Deserializa el JSON en un arreglo de DTOs de Usuario
                 UsuarioDTO[] usuarios = mapper.readValue(json, UsuarioDTO[].class);
                 // 5. Crea un modelo de tabla
-                DefaultTableModel modelo = new DefaultTableModel();
+                DefaultTableModel modelo = new DefaultTableModel() {
+                    @Override
+                    public boolean isCellEditable(int row, int column) {
+                        return false; // todas las celdas son de solo lectura
+                    }
+                };
                 // 6. Define las columnas visibles en la tabla
                 modelo.addColumn("ID");
                 modelo.addColumn("Username");
