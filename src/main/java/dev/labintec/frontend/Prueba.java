@@ -39,7 +39,6 @@ public class Prueba extends javax.swing.JFrame {
         jMenuItemGestion = new javax.swing.JMenuItem();
         MenuTramites = new javax.swing.JMenu();
         menuTramite = new javax.swing.JMenuItem();
-        menuAyuda = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -95,9 +94,6 @@ public class Prueba extends javax.swing.JFrame {
         MenuTramites.add(menuTramite);
 
         jMenuBar1.add(MenuTramites);
-
-        menuAyuda.setText("Ayuda");
-        jMenuBar1.add(menuAyuda);
 
         setJMenuBar(jMenuBar1);
 
@@ -164,7 +160,6 @@ public class Prueba extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItemGestion;
     private javax.swing.JMenu jMenuUsuarios;
-    private javax.swing.JMenu menuAyuda;
     private javax.swing.JMenuItem menuTramite;
     private javax.swing.JPanel panelPrincipal;
     // End of variables declaration//GEN-END:variables
